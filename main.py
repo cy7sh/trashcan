@@ -8,7 +8,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'docx'}
 CONTAINER_NAME = 'userfiles'
 
 try:
-    account_url = "https://cycloud.blob.core.windows.net"
+    account_url = "https://trashcancy.blob.core.windows.net"
     default_credential = DefaultAzureCredential()
 
     blob_service_client = BlobServiceClient(account_url, credential=default_credential)
