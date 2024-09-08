@@ -19,9 +19,6 @@ except Exception as ex:
 
 app = Flask(__name__)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -31,10 +28,9 @@ def upload_file():
     if file.filename == '':
         flash('No selected file')
         return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=filename)
-        blob_client.upload_blob(file)
+    filename = secure_filename(file.filename)
+    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=filename)
+    blob_client.upload_blob(file)
     return render_template('file.html', filename=filename)
 
 @app.route('/file/<name>')

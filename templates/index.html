@@ -1,18 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload File</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block head %}
+    <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
+    <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+
+    <script>
+        window.Dropzone.options.trashzone = {
+            chunking: true,
+            maxFilesize: 256,
+            acceptedFiles: ['image/*', 'video/*', 'audio/*', 'application/*'],
+            addRemoveLinks: true
+        }
+    </script>
+{% endblock %}
+
+{% block header %}
+    <h1>{% block title %}Trashcan: File sharing{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <h1>Upload File</h1>
-        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" required>
-            <button type="submit">Upload</button>
-        </form>
+        <form action="{{ url_for('upload_file') }}" class="dropzone" id="trashzone"></form>
     </div>
-</body>
-</html>
+{% endblock %}
