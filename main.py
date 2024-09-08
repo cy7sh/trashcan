@@ -1,6 +1,6 @@
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
-from flask import Flask, flash, request, redirect, Response, send_from_directory
+from flask import Flask, flash, request, redirect, Response, render_template
 from werkzeug.utils import secure_filename
 import mimetypes
 
@@ -35,6 +35,7 @@ def upload_file():
         filename = secure_filename(file.filename)
         blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=filename)
         blob_client.upload_blob(file)
+    return render_template('file.html', filename=filename)
 
 @app.route('/file/<name>')
 def download_file(name):
@@ -45,6 +46,6 @@ def download_file(name):
             yield chunk
     return Response(generate_file(), mimetype=mimetypes.guess_type(name)[0])
 
-@app.route('/.well-known/acme-challenge/<path:filename>')
-def acme_challenge(filename):
-    return send_from_directory('.well-known/acme-challenge', filename)
+@app.route('/')
+def index():
+    return render_template('index.html')
