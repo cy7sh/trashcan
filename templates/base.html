@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
     <title>{% block title %}{% endblock %}</title>
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
     <header>
         {% block header %}{% endblock %}
     </header>
-    <br>
     {% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div><br>
     {% endfor %}

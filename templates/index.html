@@ -6,10 +6,23 @@
 
     <script>
         window.Dropzone.options.trashzone = {
-            chunking: true,
+            // chunking: true,
+            // uploadMultiple: true,
             maxFilesize: 256,
-            acceptedFiles: ['image/*', 'video/*', 'audio/*', 'application/*'],
-            addRemoveLinks: true
+            acceptedFiles: 'image/*, video/*, audio/*, application/*',
+            addRemoveLinks: true,
+            autoProcessQueue: false,
+            init: function() {
+                var myDropzone = this;
+                this.element.querySelector('button[type=submit]').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    myDropzone.processQueue();
+                });
+                this.on("success", function(file, response) {
+                    document.write(response);
+                });
+            }
         }
     </script>
 {% endblock %}
@@ -21,6 +34,14 @@
 {% block content %}
     <div class="container">
         <h1>Upload File</h1>
-        <form action="{{ url_for('upload_file') }}" class="dropzone" id="trashzone"></form>
+        <form action="{{ url_for('upload_file') }}" class="dropzone" id="trashzone">
+            <div class="preview"></div>
+            <label for="password">Password for encryption (optional):</label>
+            <input type="password" name="password">
+            <button type="submit">Upload</button>
+        </form>
     </div>
+    <script>
+        window.Dropzone.discover();
+    </script>
 {% endblock %}

@@ -1,3 +1,5 @@
+argon2-cffi==23.1.0
+argon2-cffi-bindings==21.2.0
 azure-core==1.30.2
 azure-identity==1.17.1
 azure-storage-blob==12.22.0
@@ -27,6 +29,7 @@ opentelemetry-util-http==0.48b0
 packaging==24.1
 portalocker==2.10.1
 pycparser==2.22
+pycryptodomex==3.20.0
 PyJWT==2.9.0
 requests==2.32.3
 six==1.16.0
