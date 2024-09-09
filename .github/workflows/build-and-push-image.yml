@@ -28,5 +28,5 @@ jobs:
     - name: Build and push the Docker image
       run: |
         az acr login --name trashcan
-        docker build . -t trashcan.azurecr.io/trashcan:${{ github.sha }}
-        docker push trashcan.azurecr.io/trashcan:${{ github.sha }}
+        docker build . -t trashcan.azurecr.io/trashcan:${{ github.sha }} -t trashcan.azurecr.io/trashcan:latest
+        docker push trashcan.azurecr.io/trashcan --all-tags
