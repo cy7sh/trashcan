@@ -1,6 +1,6 @@
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
-from flask import Flask, flash, request, redirect, Response, render_template, abort
+from flask import Flask, flash, request, redirect, Response, render_template, abort, session
 from werkzeug.utils import secure_filename
 import mimetypes
 from Cryptodome.Cipher import ChaCha20
@@ -22,6 +22,7 @@ account_url = "https://trashcancy.blob.core.windows.net"
 blob_service_client = BlobServiceClient(account_url, credential=default_credential)
 
 app = Flask(__name__)
+app.config.from_prefixed_env()
 
 token_bytes = default_credential.get_token("https://database.windows.net/.default").token.encode("UTF-16-LE")
 token_struct = struct.pack(f'<I{len(token_bytes)}s', len(token_bytes), token_bytes)
@@ -59,28 +60,29 @@ def upload_file():
 
 @app.route('/dl/<uri>', methods=['GET', 'POST'])
 def download_file(uri):
-    file = model.get_file(uri)
     if request.method == 'GET':
+        file = model.get_file(uri)
         if file.encrypted:
+            session['file_id'] = file.id
             return render_template('encrypted.html', uri=uri, filename=file.filename)
     else:
+        file = model.db.get_or_404(model.Userfiles, session.get('file_id'))
         password = request.form['password']
-
-    def generate_file():
-        blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
-        stream = blob_client.download_blob()
-        if not file.encrypted:
-            for chunk in stream.chunks():
-                yield chunk
-            return
-        
         try:
             ph = PasswordHasher()
             ph.verify(file.password_hash, password)
         except:
-            abort(401)
+            return 'unauthorized', 401
         key = scrypt(password, file.salt, 32, 2**20, 8, 1)
         cipher = ChaCha20.new(key=key, nonce=file.nonce)
+
+    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
+    stream = blob_client.download_blob()
+    def generate_file():
+        if not file.encrypted:
+            for chunk in stream.chunks():
+                yield chunk
+            return
         for chunk in stream.chunks():
             yield cipher.decrypt(chunk)
     
