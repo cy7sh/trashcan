@@ -9,23 +9,24 @@ from Cryptodome.Protocol.KDF import scrypt
 from argon2 import PasswordHasher
 import random
 import string
+import struct
 
 import model
 
 CONTAINER_NAME = 'userfiles'
+SQL_COPT_SS_ACCESS_TOKEN = 1256
 
-try:
-    account_url = "https://trashcancy.blob.core.windows.net"
-    default_credential = DefaultAzureCredential()
+default_credential = DefaultAzureCredential()
 
-    blob_service_client = BlobServiceClient(account_url, credential=default_credential)
-
-except Exception as ex:
-    print('Exception:')
-    print(ex)
+account_url = "https://trashcancy.blob.core.windows.net"
+blob_service_client = BlobServiceClient(account_url, credential=default_credential)
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc:///?odbc_connect=Driver%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BServer%3Dtcp%3Atrashcan.database.windows.net%2C1433%3BDatabase%3Dtrashcandb%3BUid%3D%7Byour_user_name%7D%3BEncrypt%3Dyes%3BTrustServerCertificate%3Dno%3BConnection+Timeout%3D30%3BAuthentication%3DActiveDirectoryIntegrated'
+
+token_bytes = default_credential.get_token("https://database.windows.net/.default").token.encode("UTF-16-LE")
+token_struct = struct.pack(f'<I{len(token_bytes)}s', len(token_bytes), token_bytes)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc:///?odbc_connect=Driver%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BServer%3Dtcp%3Atrashcan.database.windows.net%2C1433%3BDatabase%3Dtrashcandb%3BEncrypt%3Dyes%3BTrustServerCertificate%3Dno%3BConnection+Timeout%3D30'
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'connect_args': {'attrs_before': {SQL_COPT_SS_ACCESS_TOKEN: token_struct}}}
 model.db.init_app(app)
 
 @app.route('/upload', methods=['POST'])
@@ -54,13 +55,13 @@ def upload_file():
         model.new_file(encrypt, filename, uri, password_hash, salt, nonce)
     else:
         model.new_file(encrypt, filename, uri)
-    return render_template('file.html', uri=uri)
+    return render_template('file.html', uri=uri, filename=filename)
 
 @app.route('/dl/<uri>')
 def download_file(uri):
     file = model.get_file(uri)
     if file.encrypted:
-        pass
+        return
     def generate_file():
         blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
         stream = blob_client.download_blob()

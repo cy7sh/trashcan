@@ -30,5 +30,5 @@ def new_file(encrypted, filename, uri, password_hash='', salt='', nonce=''):
 
 def get_file(uri):
     statement = select(Userfiles).filter_by(uri=uri)
-    userfiles_obj = db.session.one_or_404(statement)
+    userfiles_obj = db.one_or_404(statement)
     return userfiles_obj
