@@ -1,6 +1,6 @@
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
-from flask import Flask, flash, request, redirect, Response, render_template
+from flask import Flask, flash, request, redirect, Response, render_template, abort
 from werkzeug.utils import secure_filename
 import mimetypes
 from Cryptodome.Cipher import ChaCha20
@@ -57,16 +57,32 @@ def upload_file():
         model.new_file(encrypt, filename, uri)
     return render_template('file.html', uri=uri, filename=filename)
 
-@app.route('/dl/<uri>')
+@app.route('/dl/<uri>', methods=['GET', 'POST'])
 def download_file(uri):
     file = model.get_file(uri)
-    if file.encrypted:
-        return
+    if request.method == 'GET':
+        if file.encrypted:
+            return render_template('encrypted.html', uri=uri, filename=file.filename)
+    else:
+        password = request.form['password']
+
     def generate_file():
         blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
         stream = blob_client.download_blob()
+        if not file.encrypted:
+            for chunk in stream.chunks():
+                yield chunk
+            return
+        
+        try:
+            ph = PasswordHasher()
+            ph.verify(file.password_hash, password)
+        except:
+            abort(401)
+        key = scrypt(password, file.salt, 32, 2**20, 8, 1)
+        cipher = ChaCha20.new(key=key, nonce=file.nonce)
         for chunk in stream.chunks():
-            yield chunk
+            yield cipher.decrypt(chunk)
     
     return Response(generate_file(), mimetype=mimetypes.guess_type(file.filename)[0])
 
