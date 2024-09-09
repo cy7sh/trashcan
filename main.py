@@ -2,6 +2,7 @@ from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from flask import Flask, flash, request, redirect, Response, render_template, abort, session
 from werkzeug.utils import secure_filename
+from sqlalchemy import URL
 import mimetypes
 from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Random import get_random_bytes
@@ -9,12 +10,11 @@ from Cryptodome.Protocol.KDF import scrypt
 from argon2 import PasswordHasher
 import random
 import string
-import struct
+import os
 
 import model
 
 CONTAINER_NAME = 'userfiles'
-SQL_COPT_SS_ACCESS_TOKEN = 1256
 
 default_credential = DefaultAzureCredential()
 
@@ -24,10 +24,9 @@ blob_service_client = BlobServiceClient(account_url, credential=default_credenti
 app = Flask(__name__)
 app.config.from_prefixed_env()
 
-token_bytes = default_credential.get_token("https://database.windows.net/.default").token.encode("UTF-16-LE")
-token_struct = struct.pack(f'<I{len(token_bytes)}s', len(token_bytes), token_bytes)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc:///?odbc_connect=Driver%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BServer%3Dtcp%3Atrashcan.database.windows.net%2C1433%3BDatabase%3Dtrashcandb%3BEncrypt%3Dyes%3BTrustServerCertificate%3Dno%3BConnection+Timeout%3D30'
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'connect_args': {'attrs_before': {SQL_COPT_SS_ACCESS_TOKEN: token_struct}}}
+connection_string = os.getenv('AZURE_SQL_CONNECTIONSTRING')
+connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
 model.db.init_app(app)
 
 @app.route('/upload', methods=['POST'])
