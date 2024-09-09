@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="container">
-        <p>Link to your file: <a href="{{ url_for('download_file', name=filename) }}">{{ filename }}</a></p>
+        <p>Link to your file: <a href="{{ url_for('download_file', uri=uri) }}"></a></p>
         <a href="{{ url_for('index') }}">Upload another file</a>
     </div>
 {% endblock %}

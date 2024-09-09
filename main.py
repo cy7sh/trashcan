@@ -54,7 +54,7 @@ def upload_file():
         model.new_file(encrypt, filename, uri, password_hash, salt, nonce)
     else:
         model.new_file(encrypt, filename, uri)
-    return render_template('file.html', filename=filename)
+    return render_template('file.html', uri=uri)
 
 @app.route('/dl/<uri>')
 def download_file(uri):
