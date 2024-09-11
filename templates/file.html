@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
-
 {% block header %}
     <h1>{% block title %}File Uploaded{% endblock %}</h1>
 {% endblock %}
-
 {% block content %}
     <div class="container">
-        <p>Link to your file: <a href="{{ url_for('download_file', uri=uri) }}">filename</a></p>
-        <a href="{{ url_for('index') }}">Upload another file</a>
+        <p class="file-link">Link to your file: <a href="{{ url_for('download_file', uri=uri) }}">{{ filename }}</a></p>
+        <a href="{{ url_for('index') }}" class="upload-another">Upload another file</a>
     </div>
 {% endblock %}

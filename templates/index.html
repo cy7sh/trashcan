@@ -1,32 +1,5 @@
 {% extends 'base.html' %}
 
-{% block head %}
-    <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
-    <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
-
-    <script>
-        window.Dropzone.options.trashzone = {
-            // chunking: true,
-            // uploadMultiple: true,
-            maxFilesize: 256,
-            acceptedFiles: 'image/*, video/*, audio/*, application/*',
-            addRemoveLinks: true,
-            autoProcessQueue: false,
-            init: function() {
-                var myDropzone = this;
-                this.element.querySelector('button[type=submit]').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    myDropzone.processQueue();
-                });
-                this.on("success", function(file, response) {
-                    document.write(response);
-                });
-            }
-        }
-    </script>
-{% endblock %}
-
 {% block header %}
     <h1>{% block title %}Trashcan: File sharing{% endblock %}</h1>
 {% endblock %}
@@ -34,14 +7,21 @@
 {% block content %}
     <div class="container">
         <h1>Upload File</h1>
-        <form action="{{ url_for('upload_file') }}" class="dropzone" id="trashzone">
-            <div class="preview"></div>
+        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+            <div class="file-input-wrapper">
+                <button class="btn-file-input">Choose File</button>
+                <input type="file" name="file" id="file-input">
+            </div>
+            <span class="file-input-name" id="file-input-name">No file chosen</span><br>
             <label for="password">Password for encryption (optional):</label>
-            <input type="password" name="password">
+            <input type="password" name="password" id="password"><br>
             <button type="submit">Upload</button>
         </form>
     </div>
     <script>
-        window.Dropzone.discover();
+        document.getElementById('file-input').addEventListener('change', function() {
+            var fileName = this.files[0].name;
+            document.getElementById('file-input-name').textContent = fileName;
+        });
     </script>
 {% endblock %}

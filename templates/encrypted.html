@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
-
 {% block header %}
-    <h1>{% block title %}Access encrypted file{% endblock %}</h1>
+    <h1>{% block title %}Access Encrypted File{% endblock %}</h1>
 {% endblock %}
-
 {% block content %}
-    <div class="container"></div>
-        <p>The file you are tyring to access is encrypted: <strong>{{ filename }}</strong></p>
+    <div class="container">
+        <p>The file you are trying to access is encrypted: <span class="encrypted-file-name">{{ filename }}</span></p>
         <form action="{{ url_for('download_file', uri=uri)}}" method="post">
             <div class="form-group">
                 <label for="password">Enter Password:</label>

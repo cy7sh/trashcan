@@ -1,61 +1,169 @@
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.container {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    text-align: center;
-    width: 90%;
-    max-width: 500px;
-}
-
-h1 {
+    line-height: 1.6;
     color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f4f4;
 }
 
-form {
-    margin-top: 20px;
-}
-
-input[type="file"] {
-    margin-bottom: 10px;
-}
-
-button {
-    background-color: #007bff;
-    border: none;
+/* Header Styles */
+header {
+    background-color: #3498db;
     color: white;
-    padding: 10px 20px;
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
+    padding: 1rem;
     border-radius: 5px;
 }
 
-button:hover {
-    background-color: #0056b3;
+h1 {
+    margin: 0;
 }
 
+/* Container Styles */
+.container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Custom File Input Styling */
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.file-input-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-input-wrapper .btn-file-input {
+    background-color: #3498db;
+    color: white;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.file-input-wrapper .btn-file-input:hover {
+    background-color: #2980b9;
+}
+
+.file-input-name {
+    margin-left: 10px;
+    font-style: italic;
+}
+
+input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+button[type="submit"],
+input[type="submit"] {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover,
+input[type="submit"]:hover {
+    background-color: #27ae60;
+}
+
+/* Flash Message Styles */
+.flash {
+    background-color: #f39c12;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+}
+
+/* Link Styles */
 a {
-    color: #007bff;
+    color: #3498db;
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 a:hover {
+    color: #2980b9;
     text-decoration: underline;
 }
 
-.flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid #377ba8; }
+/* File Upload Success Page Styles */
+.file-link {
+    font-size: 1.1em;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.upload-another {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #3498db;
+    color: white;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.upload-another:hover {
+    background-color: #2980b9;
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Encrypted File Access Page Styles */
+.encrypted-file-name {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+}
