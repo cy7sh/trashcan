@@ -25,7 +25,7 @@ account_url = "https://trashcancy.blob.core.windows.net"
 blob_service_client = BlobServiceClient(account_url, credential=default_credential)
 
 app = Flask(__name__)
-app.config.from_prefixed_env()
+app.config.from_prefixed_env() # get app.config values from environment variable
 
 connection_string = os.getenv('AZURE_SQL_CONNECTIONSTRING')
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
