@@ -91,7 +91,7 @@ def download_file(uri):
         for chunk in stream.chunks():
             yield cipher.decrypt(chunk)
     
-    return Response(generate_file(), mimetype=mimetypes.guess_type(file.filename)[0])
+    return Response(generate_file(), mimetype=mimetypes.guess_type(file.filename)[0], headers={"Content-Disposition": f"inline; filename={file.filename}"})
 
 @app.route('/')
 def index():
