@@ -10,9 +10,9 @@
         <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
             <div class="file-input-wrapper">
                 <button class="btn-file-input">Choose File</button>
-                <input type="file" name="file" id="file-input">
+                <input type="file" name="file" id="file-input"><br>
+                <span class="file-input-name" id="file-input-name"><100MB</span><br>
             </div>
-            <span class="file-input-name" id="file-input-name">No file chosen</span><br>
             <label for="password">Password for encryption (optional):</label>
             <input type="password" name="password" id="password"><br>
             <button type="submit">Upload</button>

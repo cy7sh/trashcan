@@ -15,6 +15,9 @@ import struct
 
 import model
 
+from dotenv import load_dotenv
+load_dotenv()
+
 CONTAINER_NAME = 'userfiles'
 SQL_COPT_SS_ACCESS_TOKEN = 1256  # Connection option for access tokens, as defined in msodbcsql.h
 TOKEN_URL = "https://database.windows.net/"  # The token URL for any Azure SQL database
@@ -25,7 +28,10 @@ account_url = "https://trashcancy.blob.core.windows.net"
 blob_service_client = BlobServiceClient(account_url, credential=default_credential)
 
 app = Flask(__name__)
-app.config.from_prefixed_env() # get app.config values from environment variable
+# get app.config values from environment variable
+app.config.from_prefixed_env()
+# set maximum upload size to 100MB
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1000 * 1000
 
 connection_string = os.getenv('AZURE_SQL_CONNECTIONSTRING')
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
