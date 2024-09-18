@@ -38,7 +38,7 @@ connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_st
 token_bytes = default_credential.get_token(TOKEN_URL).token.encode('utf-16-le')
 token_struct = struct.pack(f'<I{len(token_bytes)}s', len(token_bytes), token_bytes)
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_url
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"attrs_before": {SQL_COPT_SS_ACCESS_TOKEN: token_struct}}}
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"attrs_before": {SQL_COPT_SS_ACCESS_TOKEN: token_struct}, "timeout": 300}}
 model.db.init_app(app)
 
 @app.route('/upload', methods=['POST'])
