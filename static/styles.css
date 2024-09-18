@@ -167,3 +167,7 @@ a:hover {
         padding: 1rem;
     }
 }
+
+.expiry {
+    font-style: italic;
+}

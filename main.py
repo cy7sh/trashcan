@@ -71,7 +71,11 @@ def upload_file():
 
 @app.route('/dl/<uri>', methods=['GET', 'POST'])
 def download_file(uri):
+    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
     if request.method == 'GET':
+        # may be deleted by lifecycle policy in which case it'd stil exist in the database
+        if not blob_client.exists():
+            return 'file does not exist', 404
         file = model.get_file(uri)
         if file.encrypted:
             session['file_id'] = file.id
@@ -87,7 +91,6 @@ def download_file(uri):
         key = scrypt(password, file.salt, 32, 2**20, 8, 1)
         cipher = ChaCha20.new(key=key, nonce=file.nonce)
 
-    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
     stream = blob_client.download_blob()
     def generate_file():
         if not file.encrypted:
