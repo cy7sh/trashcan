@@ -11,14 +11,13 @@
             <div class="file-input-wrapper">
                 <button class="btn-file-input">Choose File</button>
                 <input type="file" name="file" id="file-input"><br>
-                <span class="file-input-name" id="file-input-name"><100MB</span><br>
+                <span class="file-input-name" id="file-input-name">100MB max.</span><br>
             </div>
             <label for="password">Password for encryption (optional):</label>
             <input type="password" name="password" id="password"><br>
             <button type="submit">Upload</button>
+            <span class="expiry">Files are deleted after 5 days.</span>
         </form>
-        <br>
-        <span class="expiry">Files are deleted after 5 days.</span>
     </div>
     <script>
         document.getElementById('file-input').addEventListener('change', function() {
