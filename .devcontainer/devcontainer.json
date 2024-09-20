@@ -23,6 +23,9 @@
 		},
 		"ghcr.io/jlaundry/devcontainer-features/mssql-odbc-driver:1": {
 			"version": "18"
+		},
+		"ghcr.io/devcontainers/features/sshd:1": {
+  	      "version": "latest"
 		}
 	}
 
