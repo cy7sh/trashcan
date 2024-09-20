@@ -30,7 +30,7 @@ blob_service_client = BlobServiceClient(account_url, credential=default_credenti
 app = Flask(__name__)
 # get app.config values from environment variable
 app.config.from_prefixed_env()
-# set maximum upload size to 100MB
+# set maximum upload size to 100mb
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1000 * 1000
 
 connection_string = os.getenv('AZURE_SQL_CONNECTIONSTRING')
@@ -53,19 +53,23 @@ def upload_file():
     filename = secure_filename(file.filename)
     password = request.form['password']
     encrypt = password != ''
+    
+    uri = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
     if encrypt:
+        def encrypt_file(cipher):
+            while (buf := file.read(4096)):
+                yield cipher.encrypt(buf)
+
         salt = get_random_bytes(16)
         key = scrypt(password, salt, 32, 2**20, 8, 1)
         cipher = ChaCha20.new(key=key)
         nonce = cipher.nonce
         password_hash = PasswordHasher().hash(password)
-        file = cipher.encrypt(file.read())
-    uri = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
-    blob_client.upload_blob(file)
-    if encrypt:
+        blob_client.upload_blob(encrypt_file(cipher))
         model.new_file(encrypt, filename, uri, password_hash, salt, nonce)
     else:
+        blob_client.upload_blob(file)
         model.new_file(encrypt, filename, uri)
     return render_template('file.html', uri=uri, filename=filename)
 
@@ -93,11 +97,10 @@ def download_file(uri):
 
     stream = blob_client.download_blob()
     def generate_file():
-        if not file.encrypted:
-            for chunk in stream.chunks():
+        while (chunk := stream.read(4096)):
+            if not file.encrypted:
                 yield chunk
-            return
-        for chunk in stream.chunks():
+                return
             yield cipher.decrypt(chunk)
     
     return Response(generate_file(), mimetype=mimetypes.guess_type(file.filename)[0], headers={"Content-Disposition": f"inline; filename={file.filename}"})
