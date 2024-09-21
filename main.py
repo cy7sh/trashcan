@@ -30,8 +30,8 @@ blob_service_client = BlobServiceClient(account_url, credential=default_credenti
 app = Flask(__name__)
 # get app.config values from environment variable
 app.config.from_prefixed_env()
-# set maximum upload size to 100mb
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1000 * 1000
+# set maximum upload size to 25mb
+app.config['MAX_CONTENT_LENGTH'] = 25 * 1000 * 1000
 
 connection_string = os.getenv('AZURE_SQL_CONNECTIONSTRING')
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
@@ -53,6 +53,9 @@ def upload_file():
     filename = secure_filename(file.filename)
     password = request.form['password']
     encrypt = password != ''
+
+    file_length = file.seek(0, os.SEEK_END)
+    file.seek(0, os.SEEK_SET)
     
     uri = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
     blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
@@ -66,10 +69,10 @@ def upload_file():
         cipher = ChaCha20.new(key=key)
         nonce = cipher.nonce
         password_hash = PasswordHasher().hash(password)
-        blob_client.upload_blob(encrypt_file(cipher))
+        blob_client.upload_blob(data=encrypt_file(cipher), length=file_length)
         model.new_file(encrypt, filename, uri, password_hash, salt, nonce)
     else:
-        blob_client.upload_blob(file)
+        blob_client.upload_blob(data=file, length=file_length)
         model.new_file(encrypt, filename, uri)
     return render_template('file.html', uri=uri, filename=filename)
 
@@ -77,7 +80,7 @@ def upload_file():
 def download_file(uri):
     blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=uri)
     if request.method == 'GET':
-        # may be deleted by lifecycle policy in which case it'd stil exist in the database
+        # may be deleted by lifecycle policy and stil exist in database so check here
         if not blob_client.exists():
             return 'file does not exist', 404
         file = model.get_file(uri)
@@ -98,10 +101,10 @@ def download_file(uri):
     stream = blob_client.download_blob()
     def generate_file():
         while (chunk := stream.read(4096)):
-            if not file.encrypted:
+            if file.encrypted:
+                yield cipher.decrypt(chunk)
+            else:
                 yield chunk
-                return
-            yield cipher.decrypt(chunk)
     
     return Response(generate_file(), mimetype=mimetypes.guess_type(file.filename)[0], headers={"Content-Disposition": f"inline; filename={file.filename}"})
 
