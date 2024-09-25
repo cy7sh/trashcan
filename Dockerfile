@@ -1,19 +1,16 @@
-FROM python:3.12
+FROM python:3.12-alpine
 
-EXPOSE 80 2222
+EXPOSE 80
 WORKDIR /usr/src/app
 
+RUN apk --no-cache add curl unixodbc-dev g++ \
+    && curl -O https://download.microsoft.com/download/7/6/d/76de322a-d860-4894-9945-f0cc5d6a45f8/msodbcsql18_18.4.1.1-1_amd64.apk \
+    && curl -O https://download.microsoft.com/download/7/6/d/76de322a-d860-4894-9945-f0cc5d6a45f8/mssql-tools18_18.4.1.1-1_amd64.apk \
+    && apk add --allow-untrusted msodbcsql18_18.4.1.1-1_amd64.apk \
+    && apk add --allow-untrusted mssql-tools18_18.4.1.1-1_amd64.apk
+
 COPY . .
-
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
-    && curl https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-    && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
-    unixodbc msodbcsql18 dialog openssh-server \
-    && echo "root:Docker!" | chpasswd \
+RUN pip install --no-cache-dir -r requirements.txt \
     && chmod +x ./entrypoint.sh
-COPY sshd_config /etc/ssh/
-
-RUN pip install --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["./entrypoint.sh"]
