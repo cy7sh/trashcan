@@ -6,7 +6,8 @@ from sqlalchemy import URL
 import mimetypes
 from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Random import get_random_bytes
-from Cryptodome.Protocol.KDF import scrypt
+from Cryptodome.Protocol.KDF import PBKDF2
+from Cryptodome.Hash import SHA512
 from argon2 import PasswordHasher
 import random
 import string
@@ -65,7 +66,7 @@ def upload_file():
                 yield cipher.encrypt(buf)
 
         salt = get_random_bytes(16)
-        key = scrypt(password, salt, 32, 2**20, 8, 1)
+        key = PBKDF2(password, salt, 32, hmac_hash_module=SHA512)
         cipher = ChaCha20.new(key=key)
         nonce = cipher.nonce
         password_hash = PasswordHasher().hash(password)
@@ -95,7 +96,7 @@ def download_file(uri):
             ph.verify(file.password_hash, password)
         except:
             return 'unauthorized', 401
-        key = scrypt(password, file.salt, 32, 2**20, 8, 1)
+        key = PBKDF2(password, file.salt, 32, hmac_hash_module=SHA512)
         cipher = ChaCha20.new(key=key, nonce=file.nonce)
 
     stream = blob_client.download_blob()
